@@ -27,25 +27,29 @@ load_dotenv()
 # =========================================================================
 # ⚙️ CONFIGURATION — adapte ces valeurs si besoin (ou via variables d'env)
 # =========================================================================
+MONGO_URI = st.secrets.get("MONGO_URI") or os.environ.get("MONGO_URI")
 
-DOCS_FOLDER = os.environ.get(
-    "EDUCAT_FOLDER",
-    "./data"
+if not MONGO_URI:
+    raise ValueError("❌ MONGO_URI n'est pas définie")
+GEMINI_API_KEY = (
+    st.secrets.get("GEMINI_API_KEY")
+    or os.environ.get("GEMINI_API_KEY")
 )
 
-GEMINI_MODEL = os.environ.get(
-    "GEMINI_CHAT_MODEL",
-    "gemini-3.6-flash"
+GOOGLE_SEARCH_API_KEY = (
+    st.secrets.get("GOOGLE_SEARCH_API_KEY")
+    or os.environ.get("GOOGLE_SEARCH_API_KEY")
 )
 
-MONGO_URI = os.environ.get("MONGO_URI")
-
-GOOGLE_SEARCH_API_KEY = os.environ.get(
-    "GOOGLE_SEARCH_API_KEY"
+GOOGLE_CSE_ID = (
+    st.secrets.get("GOOGLE_CSE_ID")
+    or os.environ.get("GOOGLE_CSE_ID")
 )
 
-GOOGLE_CSE_ID = os.environ.get(
-    "GOOGLE_CSE_ID"
+GEMINI_MODEL = (
+    st.secrets.get("GEMINI_CHAT_MODEL")
+    or os.environ.get("GEMINI_CHAT_MODEL")
+    or "gemini-3.6-flash"
 )
 
 # =========================
