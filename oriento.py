@@ -25,32 +25,51 @@ except ImportError:
 
 load_dotenv()
 # =========================================================================
-# ⚙️ CONFIGURATION — adapte ces valeurs si besoin (ou via variables d'env)
+# ⚙️ CONFIGURATION
 # =========================================================================
-MONGO_URI = st.secrets.get("MONGO_URI") or os.environ.get("MONGO_URI")
+def get_config(key, default=None):
+    """
+    Récupère une configuration depuis Streamlit Secrets
+    ou depuis les variables d'environnement.
+    """
 
-if not MONGO_URI:
-    raise ValueError("❌ MONGO_URI n'est pas définie")
-GEMINI_API_KEY = (
-    st.secrets.get("GEMINI_API_KEY")
-    or os.environ.get("GEMINI_API_KEY")
+    try:
+        value = st.secrets.get(key)
+    except Exception:
+        value = None
+
+    if value:
+        return value
+
+    return os.environ.get(key, default)
+
+
+# =========================
+# CONFIGURATION
+# =========================
+
+MONGO_URI = get_config("MONGO_URI")
+
+GEMINI_API_KEY = get_config("GEMINI_API_KEY")
+
+GEMINI_MODEL = get_config(
+    "GEMINI_CHAT_MODEL",
+    "gemini-3.6-flash"
 )
 
-GOOGLE_SEARCH_API_KEY = (
-    st.secrets.get("GOOGLE_SEARCH_API_KEY")
-    or os.environ.get("GOOGLE_SEARCH_API_KEY")
+GOOGLE_SEARCH_API_KEY = get_config(
+    "GOOGLE_SEARCH_API_KEY"
 )
 
-GOOGLE_CSE_ID = (
-    st.secrets.get("GOOGLE_CSE_ID")
-    or os.environ.get("GOOGLE_CSE_ID")
+GOOGLE_CSE_ID = get_config(
+    "GOOGLE_CSE_ID"
 )
 
-GEMINI_MODEL = (
-    st.secrets.get("GEMINI_CHAT_MODEL")
-    or os.environ.get("GEMINI_CHAT_MODEL")
-    or "gemini-3.6-flash"
+DOCS_FOLDER = get_config(
+    "EDUCAT_FOLDER",
+    "./data"
 )
+
 
 # =========================
 # VERIFICATIONS
@@ -59,6 +78,11 @@ GEMINI_MODEL = (
 if not MONGO_URI:
     raise ValueError(
         "❌ MONGO_URI n'est pas définie"
+    )
+
+if not GEMINI_API_KEY:
+    raise ValueError(
+        "❌ GEMINI_API_KEY n'est pas définie"
     )
 
 if not GOOGLE_SEARCH_API_KEY:
@@ -71,11 +95,13 @@ if not GOOGLE_CSE_ID:
         "❌ GOOGLE_CSE_ID n'est pas défini"
     )
 
+
 # =========================
 # MONGODB
 # =========================
 
 try:
+
     client = MongoClient(
         MONGO_URI,
         serverSelectionTimeoutMS=5000
@@ -83,12 +109,16 @@ try:
 
     client.admin.command("ping")
 
-    print("✅ Connexion à MongoDB Atlas réussie !")
+    print(
+        "✅ Connexion à MongoDB Atlas réussie !"
+    )
 
 except Exception as e:
+
     print("❌ Erreur MongoDB :")
     print(e)
 
+    raise
 # Extensions reconnues
 EXT_TABULAIRE = {"xlsx", "xls", "ods", "csv"}
 EXT_DOCUMENT = {"pdf", "docx"}
